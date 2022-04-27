@@ -197,9 +197,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query1)
-            {
-                Console.WriteLine(result.Name + ", location - " + result.OfficeLocation + ", date of creation - " + result.DateOfCreation);
-            }
+                Console.WriteLine($"{result.Name}, location - {result.OfficeLocation}, date of creation - {result.DateOfCreation}");
 
             #endregion
             
@@ -215,9 +213,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query2)
-            {
                 Console.WriteLine(result);
-            }
 
             #endregion
             
@@ -248,9 +244,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query3)
-            {
-                Console.WriteLine(result.Type + ", wingspan - " + result.Wingspan);
-            }
+                Console.WriteLine($"{result.Type}, wingspan - {result.Wingspan}");
 
             #endregion
             
@@ -275,12 +269,9 @@ namespace ORPZ_lab2
                 
             Console.WriteLine("Result: ");
             foreach (var result in query4)
-            {
-                Console.WriteLine(result.Type 
-                                  + ", maximum height - " + result.MaximumHeight 
-                                  + ", maximum flight range - " + result.MaximumFlightRange 
-                                  + ", load capacity - " + result.LoadCapacity);
-            }
+                Console.WriteLine($"{result.Type}, maximum height - {result.MaximumHeight}" +
+                                  $", maximum flight range - {result.MaximumFlightRange}" +
+                                  $", load capacity - {result.LoadCapacity}");
 
             #endregion
             
@@ -311,9 +302,7 @@ namespace ORPZ_lab2
                 Console.WriteLine("Airline ID: " + result.Key);
                 Console.WriteLine("Planes:");
                 foreach (var plane in result)
-                {
                     Console.WriteLine(plane.Type);
-                }
 
                 Console.WriteLine();
             }
@@ -345,10 +334,8 @@ namespace ORPZ_lab2
                 Console.WriteLine("Airline ID: " + result.Key);
                 Console.WriteLine("Planes:");
                 foreach (var helicopter in result)
-                {
                     Console.WriteLine(helicopter.Type);
-                }
-
+                
                 Console.WriteLine();
             }
 
@@ -385,9 +372,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query7)
-            {
-                Console.WriteLine("Airline - " + result.Airline + ", total load capacity - " + result.TotalCapacity);
-            }
+                Console.WriteLine($"Airline - {result.Airline}, total load capacity - {result.TotalCapacity}");
 
             #endregion
             
@@ -424,9 +409,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query8)
-            {
-                Console.WriteLine("Type - " + result.Type + ", airline - " + result.Airline);
-            }
+                Console.WriteLine($"Type - {result.Type}, airline - {result.Airline}");
 
             #endregion
             
@@ -440,7 +423,7 @@ namespace ORPZ_lab2
 
             var query9 = planesDoc.Descendants("plane").Count();
             
-            Console.WriteLine("Result: " + query9);
+            Console.WriteLine($"Result: {query9}");
 
             #endregion
             
@@ -467,9 +450,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query10)
-            {
-                Console.WriteLine(result.Type + ", wingspan - " + result.Wingspan + ", load capacity - " + result.LoadCapacity);
-            }
+                Console.WriteLine($"{result.Type}, wingspan - {result.Wingspan}, load capacity - {result.LoadCapacity}");
 
             #endregion
             
@@ -532,9 +513,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query11)
-            {
                 Console.WriteLine(result.Aircraft);
-            }
 
             #endregion
             
@@ -567,9 +546,8 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query12)
-            {
-                Console.WriteLine(result.Airline + " - " + result.NumOfHelis);
-            }
+                Console.WriteLine($"{result.Airline} - {result.NumOfHelis}");
+            
 
             #endregion
             
@@ -605,9 +583,7 @@ namespace ORPZ_lab2
             {
                 Console.WriteLine(result.Airline);
                 foreach (var heli in result.Helicopters)
-                {
                     Console.WriteLine(heli.Type);
-                }
             }
 
             #endregion
@@ -638,9 +614,7 @@ namespace ORPZ_lab2
             
             Console.WriteLine("Result: ");
             foreach (var result in query14)
-            {
-                Console.WriteLine("Flight range - " + result.MaxFlightRange + ", planes count - " + result.PlanesCount);
-            }
+                Console.WriteLine($"Flight range - {result.MaxFlightRange}, planes count - {result.PlanesCount}");
 
             #endregion
             
@@ -654,7 +628,7 @@ namespace ORPZ_lab2
 
             var query15 = helicoptersDoc.Descendants("helicopter").Sum(el => (float) el.Element("loadCapacity"));
             
-            Console.WriteLine("Result: " + query15);
+            Console.WriteLine($"Result: {query15}");
 
             #endregion
             
