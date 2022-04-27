@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -12,6 +14,7 @@ namespace ORPZ_lab2
         static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             
             #region Initializing lists with data
 
@@ -73,8 +76,7 @@ namespace ORPZ_lab2
             
             #region Writing the data into .xml file
 
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
+            XmlWriterSettings settings = new XmlWriterSettings { Indent = true };
 
             using (XmlWriter writer = XmlWriter.Create("planes.xml", settings))
             {
@@ -83,10 +85,10 @@ namespace ORPZ_lab2
                 {
                     writer.WriteStartElement("plane");
                     writer.WriteElementString("type", plane.Type);
-                    writer.WriteElementString("wingspan", plane.Wingspan.ToString());
-                    writer.WriteElementString("loadCapacity", plane.LoadCapacity.ToString());
-                    writer.WriteElementString("maximumFlightRange", plane.MaximumFlightRange.ToString());
-                    writer.WriteElementString("takeoffRunLength", plane.TakeoffRunLength.ToString());
+                    writer.WriteElementString("wingspan", plane.Wingspan.ToString(CultureInfo.CurrentCulture));
+                    writer.WriteElementString("loadCapacity", plane.LoadCapacity.ToString(CultureInfo.CurrentCulture));
+                    writer.WriteElementString("maximumFlightRange", plane.MaximumFlightRange.ToString(CultureInfo.CurrentCulture));
+                    writer.WriteElementString("takeoffRunLength", plane.TakeoffRunLength.ToString(CultureInfo.CurrentCulture));
                     writer.WriteElementString("airlineId", plane.AirlineId.ToString());
                     writer.WriteEndElement();
                 }
@@ -100,9 +102,9 @@ namespace ORPZ_lab2
                 {
                     writer.WriteStartElement("helicopter");
                     writer.WriteElementString("type", helicopter.Type);
-                    writer.WriteElementString("maximumHeight", helicopter.MaximumHeight.ToString());
-                    writer.WriteElementString("maximumFlightRange", helicopter.MaximumFlightRange.ToString());
-                    writer.WriteElementString("loadCapacity", helicopter.LoadCapacity.ToString());
+                    writer.WriteElementString("maximumHeight", helicopter.MaximumHeight.ToString(CultureInfo.CurrentCulture));
+                    writer.WriteElementString("maximumFlightRange", helicopter.MaximumFlightRange.ToString(CultureInfo.CurrentCulture));
+                    writer.WriteElementString("loadCapacity", helicopter.LoadCapacity.ToString(CultureInfo.CurrentCulture));
                     writer.WriteElementString("airlineId", helicopter.AirlineId.ToString());
                     writer.WriteEndElement();
                 }
@@ -118,7 +120,7 @@ namespace ORPZ_lab2
                     writer.WriteElementString("id", airline.Id.ToString());
                     writer.WriteElementString("name", airline.Name);
                     writer.WriteElementString("officeLocation", airline.OfficeLocation);
-                    writer.WriteElementString("dateOfCreation", airline.DateOfCreation.ToString());
+                    writer.WriteElementString("dateOfCreation", airline.DateOfCreation.ToString(CultureInfo.CurrentCulture));
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
@@ -128,75 +130,55 @@ namespace ORPZ_lab2
 
             #region Reading the data from .xml file
 
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load("planes.xml");
-
-            foreach (XmlNode planeNode in xmlDocument.DocumentElement)
+            XDocument planesDoc = XDocument.Load("planes.xml");
+            foreach (XElement plane in planesDoc.Descendants("plane"))
             {
-                string type = planeNode["type"]?.InnerText;
-                float wingspan = (float)Convert.ToDouble(planeNode["wingspan"]?.InnerText);
-                float loadCapacity = (float)Convert.ToDouble(planeNode["loadCapacity"]?.InnerText);
-                float maximumFlightRange = (float)Convert.ToDouble(planeNode["maximumFlightRange"]?.InnerText);
-                float takeoffRunLength = (float)Convert.ToDouble(planeNode["takeoffRunLength"]?.InnerText);
-                int airlineId = Convert.ToInt32(planeNode["airlineId"]?.InnerText);
+                string type = (string) plane.Element("type");
+                float wingspan = (float) plane.Element("wingspan");
+                float loadCapacity = (float) plane.Element("loadCapacity");
+                float maximumFlightRange = (float) plane.Element("maximumFlightRange");
+                float takeoffRunLength = (float) plane.Element("takeoffRunLength");
+                int airlineId = (int) plane.Element("airlineId");
 
                 Console.WriteLine($"Type - {type}, wingspan - {wingspan}, load capacity - {loadCapacity}, " +
                                   $"maximum flight range - {maximumFlightRange}, takeoff run length - {takeoffRunLength}");
             }
-
-            Console.WriteLine("\n\n\n");
-
-            XDocument planesDoc = XDocument.Load("planes.xml");
-            foreach (XElement planeElement in planesDoc.Element("planes").Elements("plane"))
-            {
-                XElement typeElement = planeElement.Element("type");
-                XElement wingspanElement = planeElement.Element("wingspan");
-                XElement loadCapacityElement = planeElement.Element("loadCapacity");
-                XElement maximumFlightRangeElement = planeElement.Element("maximumFlightRange");
-                XElement takeoffRunLengthElement = planeElement.Element("takeoffRunLength");
-                XElement airlineIdElement = planeElement.Element("airlineId");
-
-                Console.WriteLine($"Type - {typeElement?.Value}, wingspan - {wingspanElement?.Value}, " +
-                                  $"load capacity - {loadCapacityElement?.Value}, " +
-                                  $"maximum flight range - {maximumFlightRangeElement?.Value}, " +
-                                  $"takeoff run length - {takeoffRunLengthElement?.Value}");
-            }
             
-            Console.WriteLine("\n\n\n");
+            Console.WriteLine("\n");
             
             XDocument helicoptersDoc = XDocument.Load("helicopters.xml");
-            foreach (XElement heliElement in helicoptersDoc.Element("helicopters").Elements("helicopter"))
+            foreach (XElement heli in helicoptersDoc.Descendants("helicopter"))
             {
-                XElement typeElement = heliElement.Element("type");
-                XElement maximumHeightElement = heliElement.Element("maximumHeight");
-                XElement maximumFlightRangeElement = heliElement.Element("maximumFlightRange");
-                XElement loadCapacityElement = heliElement.Element("loadCapacity");
-                XElement airlineIdElement = heliElement.Element("airlineId");
+                string type = (string) heli.Element("type");
+                float maximumHeight = (float) heli.Element("maximumHeight");
+                float maximumFlightRange = (float) heli.Element("maximumFlightRange");
+                float loadCapacity = (float) heli.Element("loadCapacity");
+                int airlineId = (int) heli.Element("airlineId");
 
-                Console.WriteLine($"Type - {typeElement?.Value}, maximum height - {maximumHeightElement?.Value}, " +
-                                  $"maximum flight range - {maximumFlightRangeElement?.Value}, " +
-                                  $"load capacity - {loadCapacityElement?.Value}");
+                Console.WriteLine($"Type - {type}, maximum height - {maximumHeight}, maximum flight range - {maximumFlightRange}, " +
+                                  $"load capacity - {loadCapacity}");
             }
 
-            Console.WriteLine("\n\n\n");
+            Console.WriteLine("\n");
             
             XDocument airlinesDoc = XDocument.Load("airlines.xml");
-            foreach (XElement airlineElement in airlinesDoc.Element("airlines").Elements("airline"))
+            foreach (XElement airline in airlinesDoc.Descendants("airline"))
             {
-                XElement idElement = airlineElement.Element("id");
-                XElement nameElement = airlineElement.Element("name");
-                XElement officeLocationElement = airlineElement.Element("officeLocation");
-                XElement dateOfCreationElement = airlineElement.Element("dateOfCreation");
+                int id = (int) airline.Element("id");
+                string name = (string) airline.Element("name");
+                string officeLocation = (string) airline.Element("officeLocation");
+                DateTime dateOfCreation = (DateTime) airline.Element("dateOfCreation");
 
-                Console.WriteLine($"Name - {nameElement?.Value}, office location - {officeLocationElement?.Value}, " +
-                                  $"date of creation - {dateOfCreationElement?.Value}");
+                Console.WriteLine($"Name - {name}, office location - {officeLocation}, date of creation - {dateOfCreation}");
             }
 
-            Console.WriteLine("\n\n\n");
+            Console.WriteLine("\n");
 
             #endregion
 
             #region LINQ to XML
+
+            #region Query 1
 
             Console.WriteLine("Query 1");
             Console.WriteLine("Show information about airlines");
@@ -204,12 +186,13 @@ namespace ORPZ_lab2
             // var query1 = from a in airlines
             //     select a;
             
-            var query1 = airlinesDoc.Element("airlines").Elements("airline").Select(el => new Airline()
+            var query1 = airlinesDoc.Descendants("airline")
+                .Select(el => new Airline()
                 {
-                    Id = Convert.ToInt32(el.Element("id").Value),
-                    Name = el.Element("name").Value,
-                    OfficeLocation = el.Element("officeLocation").Value,
-                    DateOfCreation = Convert.ToDateTime(el.Element("dateOfCreation").Value)
+                    Id = (int) el.Element("id"),
+                    Name = (string) el.Element("name"),
+                    OfficeLocation = (string) el.Element("officeLocation"),
+                    DateOfCreation = (DateTime) el.Element("dateOfCreation")
                 });
             
             Console.WriteLine("Result: ");
@@ -218,14 +201,17 @@ namespace ORPZ_lab2
                 Console.WriteLine(result.Name + ", location - " + result.OfficeLocation + ", date of creation - " + result.DateOfCreation);
             }
 
+            #endregion
             
-            Console.WriteLine("\n\n");
+            #region Query 2
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 2");
             Console.WriteLine("Select unique types of planes");
             
             // var query2 = planes.Select(p => p.Type).Distinct();
             
-            var query2 = planesDoc.Element("planes").Elements("plane").Select(el => el.Element("type").Value).Distinct();
+            var query2 = planesDoc.Descendants("plane").Select(el => (string) el.Element("type")).Distinct();
             
             Console.WriteLine("Result: ");
             foreach (var result in query2)
@@ -233,8 +219,11 @@ namespace ORPZ_lab2
                 Console.WriteLine(result);
             }
 
+            #endregion
             
-            Console.WriteLine("\n\n");
+            #region Query 3
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 3");
             Console.WriteLine("Select planes with wingspan > 62, sort by wingspan and if equal, sort by type");
             
@@ -243,38 +232,45 @@ namespace ORPZ_lab2
             //     orderby p.Wingspan, p.Type
             //     select p;
             
-            var query3 = planesDoc.Element("planes").Elements("plane")
-                .Where(el => Convert.ToDouble(el.Element("wingspan").Value) > 62).Select(el => new Plane()
+            var query3 = planesDoc.Descendants("plane")
+                .Where(el => (float) el.Element("wingspan") > 62)
+                .OrderBy(el => (float) el.Element("wingspan"))
+                .ThenBy(el => (string) el.Element("type"))
+                .Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value, 
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value), 
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value), 
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value), 
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value), 
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                }).OrderBy(p => p.Wingspan).ThenBy(p => p.Type);
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
+                });
             
             Console.WriteLine("Result: ");
             foreach (var result in query3)
             {
                 Console.WriteLine(result.Type + ", wingspan - " + result.Wingspan);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 4
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 4");
             Console.WriteLine("Show information about helicopters, sorted by maximum height in descending order");
             
             // var query4 = helicopters.Select(h => h).OrderByDescending(h => h.MaximumHeight);
             
-            var query4 = helicoptersDoc.Element("helicopters").Elements("helicopter")
-                .OrderByDescending(el => el.Element("maximumHeight").Value).Select(el => new Helicopter()
+            var query4 = helicoptersDoc.Descendants("helicopter")
+                .OrderByDescending(el => (float) el.Element("maximumHeight"))
+                .Select(el => new Helicopter()
                 {
-                    Type = el.Element("type").Value, 
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value), 
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value), 
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value), 
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    MaximumHeight = (float) el.Element("maximumHeight"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    AirlineId = (int) el.Element("airlineId")
                 });
                 
             Console.WriteLine("Result: ");
@@ -285,24 +281,29 @@ namespace ORPZ_lab2
                                   + ", maximum flight range - " + result.MaximumFlightRange 
                                   + ", load capacity - " + result.LoadCapacity);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 5
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 5");
             Console.WriteLine("Group planes by airline");
             
             // var query5 = from p in planes
             //     group p by p.AirlineId;
             
-            var query5 = planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
+            var query5 = planesDoc.Descendants("plane")
+                .Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value, 
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value), 
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value), 
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value), 
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value), 
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                }).GroupBy(p => p.AirlineId);
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
+                })
+                .GroupBy(p => p.AirlineId);
             
             Console.WriteLine("Result: ");
             foreach (var result in query5)
@@ -316,21 +317,27 @@ namespace ORPZ_lab2
 
                 Console.WriteLine();
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 6
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 6");
             Console.WriteLine("Group helicopters by airline, sorted by airline ID in descending order");
             
             // var query6 = helicopters.GroupBy(h => h.AirlineId).OrderByDescending(g => g.Key);
-            var query6 = helicoptersDoc.Element("helicopters").Elements("helicopter").Select(el => new Helicopter()
+            var query6 = helicoptersDoc.Descendants("helicopter")
+                .Select(el => new Helicopter()
                 {
-                    Type = el.Element("type").Value,
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                }).GroupBy(h => h.AirlineId).OrderByDescending(g => g.Key);
+                    Type = (string) el.Element("type"), 
+                    MaximumHeight = (float) el.Element("maximumHeight"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    AirlineId = (int) el.Element("airlineId")
+                })
+                .GroupBy(h => h.AirlineId)
+                .OrderByDescending(g => g.Key);
             
             Console.WriteLine("Result: ");
             foreach (var result in query6)
@@ -344,9 +351,12 @@ namespace ORPZ_lab2
 
                 Console.WriteLine();
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 7
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 7");
             Console.WriteLine("Get total load capacity of planes that belongs to each airline, sorted in ascending order");
             
@@ -357,15 +367,16 @@ namespace ORPZ_lab2
             //         TotalCapacity = g.Sum(p => p.LoadCapacity) 
             //     };
             
-            var query7 = from p in planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
-                {
-                    Type = el.Element("type").Value, 
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value), 
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value), 
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value), 
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value), 
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                })
+            var query7 = from p in planesDoc.Descendants("plane")
+                    .Select(el => new Plane()
+                    {
+                        Type = (string) el.Element("type"), 
+                        Wingspan = (float) el.Element("wingspan"), 
+                        LoadCapacity = (float) el.Element("loadCapacity"), 
+                        MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                        TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                        AirlineId = (int) el.Element("airlineId")
+                    })
                 group p by p.AirlineId into g
                 select new { 
                     Airline = airlines.Where(a => a.Id == g.Key).Select(a => a.Name).FirstOrDefault(),
@@ -377,9 +388,12 @@ namespace ORPZ_lab2
             {
                 Console.WriteLine("Airline - " + result.Airline + ", total load capacity - " + result.TotalCapacity);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 8
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 8");
             Console.WriteLine("Get a type of plane and name of airline it belongs to");
             
@@ -388,69 +402,80 @@ namespace ORPZ_lab2
             //     a => a.Id,
             //     (p, a) => new { Airline = a.Name, Type = p.Type });
 
-            var query8 = planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
+            var query8 = planesDoc.Descendants("plane").Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value,
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
                 })
-                .Join(airlinesDoc.Element("airlines").Elements("airline").Select(el => new Airline()
-                {
-                    Id = Convert.ToInt32(el.Element("id").Value),
-                    Name = el.Element("name").Value,
-                    OfficeLocation = el.Element("officeLocation").Value,
-                    DateOfCreation = Convert.ToDateTime(el.Element("dateOfCreation").Value)
-                }),
-                p => p.AirlineId,
-                a => a.Id,
-                (p, a) => new { Airline = a.Name, Type = p.Type });
+                .Join(airlinesDoc.Descendants("airline").Select(el => new Airline()
+                    {
+                        Id = (int) el.Element("id"),
+                        Name = (string) el.Element("name"),
+                        OfficeLocation = (string) el.Element("officeLocation"),
+                        DateOfCreation = (DateTime) el.Element("dateOfCreation")
+                    }),
+                    p => p.AirlineId,
+                    a => a.Id,
+                    (p, a) => new { Airline = a.Name, p.Type });
             
             Console.WriteLine("Result: ");
             foreach (var result in query8)
             {
                 Console.WriteLine("Type - " + result.Type + ", airline - " + result.Airline);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 9
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 9");
             Console.WriteLine("Get total count of planes");
             
             // var query9 = planes.Count();
 
-            var query9 = planesDoc.Element("planes").Elements("plane").Count();
+            var query9 = planesDoc.Descendants("plane").Count();
             
             Console.WriteLine("Result: " + query9);
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 10
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 10");
             Console.WriteLine("Get planes with load capacity > 37000, except planes with wingspan > 70");
             
             // var query10 = planes.Where(p => p.LoadCapacity > 37000)
             //     .Except(planes.Where(p2 => p2.Wingspan > 70));
             
-            var query10 = planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
+            var query10 = planesDoc.Descendants("plane").Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value,
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                }).Where(p => p.LoadCapacity > 37000).Except(planes.Where(p2 => p2.Wingspan > 70));
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
+                })
+                .Where(p => p.LoadCapacity > 37000)
+                .Except(planes.Where(p2 => p2.Wingspan > 70));
             
             Console.WriteLine("Result: ");
             foreach (var result in query10)
             {
                 Console.WriteLine(result.Type + ", wingspan - " + result.Wingspan + ", load capacity - " + result.LoadCapacity);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 11
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 11");
             Console.WriteLine("Get types of all aircrafts that belongs to \"Emirates\"");
             
@@ -465,40 +490,40 @@ namespace ORPZ_lab2
             //         (h, a) => new { Aircraft = h.Type, Airline = a.Name })
             //         .Where(t1 => t1.Airline == "Emirates"));
             
-            var query11 = planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
+            var query11 = planesDoc.Descendants("plane").Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value,
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
                 })
-                .Join(airlinesDoc.Element("airlines").Elements("airline").Select(el => new Airline()
+                .Join(airlinesDoc.Descendants("airline").Select(el => new Airline()
                 {
-                    Id = Convert.ToInt32(el.Element("id").Value),
-                    Name = el.Element("name").Value,
-                    OfficeLocation = el.Element("officeLocation").Value,
-                    DateOfCreation = Convert.ToDateTime(el.Element("dateOfCreation").Value)
+                    Id = (int) el.Element("id"),
+                    Name = (string) el.Element("name"),
+                    OfficeLocation = (string) el.Element("officeLocation"),
+                    DateOfCreation = (DateTime) el.Element("dateOfCreation")
                 }),
                 p => p.AirlineId,
                 a => a.Id,
                 (p, a) => new { Aircraft = p.Type, Airline = a.Name })
                 .Where(t => t.Airline == "Emirates")
-                .Union(helicoptersDoc.Element("helicopters").Elements("helicopter").Select(el => new Helicopter()
+                .Union(helicoptersDoc.Descendants("helicopter").Select(el => new Helicopter()
                 {
-                    Type = el.Element("type").Value,
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    MaximumHeight = (float) el.Element("maximumHeight"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    AirlineId = (int) el.Element("airlineId")
                 })
-                    .Join(airlinesDoc.Element("airlines").Elements("airline").Select(el => new Airline()
+                    .Join(airlinesDoc.Descendants("airline").Select(el => new Airline()
                     {
-                        Id = Convert.ToInt32(el.Element("id").Value),
-                        Name = el.Element("name").Value,
-                        OfficeLocation = el.Element("officeLocation").Value,
-                        DateOfCreation = Convert.ToDateTime(el.Element("dateOfCreation").Value)
+                        Id = (int) el.Element("id"),
+                        Name = (string) el.Element("name"),
+                        OfficeLocation = (string) el.Element("officeLocation"),
+                        DateOfCreation = (DateTime) el.Element("dateOfCreation")
                     }),
                     h => h.AirlineId,
                     a => a.Id,
@@ -510,9 +535,12 @@ namespace ORPZ_lab2
             {
                 Console.WriteLine(result.Aircraft);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 12
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 12");
             Console.WriteLine("Get number of helicopters for each airline");
             
@@ -520,20 +548,20 @@ namespace ORPZ_lab2
             //     join h in helicopters on a.Id equals h.AirlineId into temp
             //     select new { Airline = a.Name, NumOfHelis = temp.Count() };
             
-            var query12 = from a in airlinesDoc.Element("airlines").Elements("airline").Select(el => new Airline()
+            var query12 = from a in airlinesDoc.Descendants("airline").Select(el => new Airline()
                 {
-                    Id = Convert.ToInt32(el.Element("id").Value),
-                    Name = el.Element("name").Value,
-                    OfficeLocation = el.Element("officeLocation").Value,
-                    DateOfCreation = Convert.ToDateTime(el.Element("dateOfCreation").Value)
+                    Id = (int) el.Element("id"),
+                    Name = (string) el.Element("name"),
+                    OfficeLocation = (string) el.Element("officeLocation"),
+                    DateOfCreation = (DateTime) el.Element("dateOfCreation")
                 })
-                join h in helicoptersDoc.Element("helicopters").Elements("helicopter").Select(el => new Helicopter()
+                join h in helicoptersDoc.Descendants("helicopter").Select(el => new Helicopter()
                 {
-                    Type = el.Element("type").Value,
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    MaximumHeight = (float) el.Element("maximumHeight"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    AirlineId = (int) el.Element("airlineId")
                 }) on a.Id equals h.AirlineId into temp
                 select new { Airline = a.Name, NumOfHelis = temp.Count() };
             
@@ -542,9 +570,12 @@ namespace ORPZ_lab2
             {
                 Console.WriteLine(result.Airline + " - " + result.NumOfHelis);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 13
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 13");
             Console.WriteLine("Get all helicopters, except first, for each airline");
             
@@ -555,13 +586,13 @@ namespace ORPZ_lab2
             //         Helicopters = g.Skip(1)
             //     });
             
-            var query13 = helicoptersDoc.Element("helicopters").Elements("helicopter").Select(el => new Helicopter()
+            var query13 = helicoptersDoc.Descendants("helicopter").Select(el => new Helicopter()
                 {
-                    Type = el.Element("type").Value,
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    MaximumHeight = (float) el.Element("maximumHeight"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    AirlineId = (int) el.Element("airlineId")
                 }).GroupBy(h => h.AirlineId)
                 .Select(g => new
                 {
@@ -578,9 +609,12 @@ namespace ORPZ_lab2
                     Console.WriteLine(heli.Type);
                 }
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 14
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 14");
             Console.WriteLine("Get count of planes, grouped by maximum flight range");
             
@@ -589,14 +623,14 @@ namespace ORPZ_lab2
             //     into g
             //     select new { MaxFlightRange = g.Key, PlanesCount = g.Count() };
             
-            var query14 = from p in planesDoc.Element("planes").Elements("plane").Select(el => new Plane()
+            var query14 = from p in planesDoc.Descendants("plane").Select(el => new Plane()
                 {
-                    Type = el.Element("type").Value,
-                    Wingspan = (float)Convert.ToDouble(el.Element("wingspan").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    TakeoffRunLength = (float)Convert.ToDouble(el.Element("takeoffRunLength").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
+                    Type = (string) el.Element("type"), 
+                    Wingspan = (float) el.Element("wingspan"), 
+                    LoadCapacity = (float) el.Element("loadCapacity"), 
+                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                    TakeoffRunLength = (float) el.Element("takeoffRunLength"), 
+                    AirlineId = (int) el.Element("airlineId")
                 })
                 group p by p.MaximumFlightRange
                 into g
@@ -607,25 +641,23 @@ namespace ORPZ_lab2
             {
                 Console.WriteLine("Flight range - " + result.MaxFlightRange + ", planes count - " + result.PlanesCount);
             }
+
+            #endregion
             
-            
-            Console.WriteLine("\n\n");
+            #region Query 15
+
+            Console.WriteLine("\n");
             Console.WriteLine("Query 15");
             Console.WriteLine("Get total load capacity of helicopters");
             
             // var query15 = helicopters.Sum(h => h.LoadCapacity);
 
-            var query15 = helicoptersDoc.Element("helicopters").Elements("helicopter").Select(el => new Helicopter()
-                {
-                    Type = el.Element("type").Value,
-                    MaximumHeight = (float)Convert.ToDouble(el.Element("maximumHeight").Value),
-                    MaximumFlightRange = (float)Convert.ToDouble(el.Element("maximumFlightRange").Value),
-                    LoadCapacity = (float)Convert.ToDouble(el.Element("loadCapacity").Value),
-                    AirlineId = Convert.ToInt32(el.Element("airlineId").Value)
-                }).Sum(h => h.LoadCapacity);
+            var query15 = helicoptersDoc.Descendants("helicopter").Sum(el => (float) el.Element("loadCapacity"));
             
             Console.WriteLine("Result: " + query15);
 
+            #endregion
+            
             #endregion
         }
     }
