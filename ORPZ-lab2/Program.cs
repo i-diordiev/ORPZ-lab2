@@ -492,13 +492,13 @@ namespace ORPZ_lab2
                 (p, a) => new { Aircraft = p.Type, Airline = a.Name })
                 .Where(t => t.Airline == "Emirates")
                 .Union(helicoptersDoc.Descendants("helicopter").Select(el => new Helicopter()
-                {
-                    Type = (string) el.Element("type"), 
-                    MaximumHeight = (float) el.Element("maximumHeight"), 
-                    MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
-                    LoadCapacity = (float) el.Element("loadCapacity"), 
-                    AirlineId = (int) el.Element("airlineId")
-                })
+                    {
+                        Type = (string) el.Element("type"), 
+                        MaximumHeight = (float) el.Element("maximumHeight"), 
+                        MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
+                        LoadCapacity = (float) el.Element("loadCapacity"), 
+                        AirlineId = (int) el.Element("airlineId")
+                    })
                     .Join(airlinesDoc.Descendants("airline").Select(el => new Airline()
                     {
                         Id = (int) el.Element("id"),
@@ -571,7 +571,8 @@ namespace ORPZ_lab2
                     MaximumFlightRange = (float) el.Element("maximumFlightRange"), 
                     LoadCapacity = (float) el.Element("loadCapacity"), 
                     AirlineId = (int) el.Element("airlineId")
-                }).GroupBy(h => h.AirlineId)
+                })
+                .GroupBy(h => h.AirlineId)
                 .Select(g => new
                 {
                     Airline = airlines.FirstOrDefault(a => g.Key == a.Id),
